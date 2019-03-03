@@ -4,11 +4,21 @@ project(xtlrig)
 option(WITH_LIBCPUID  "Use Libcpuid" ON)
 option(WITH_AEON      "CryptoNight-Lite support" ON)
 option(WITH_SUMO      "CryptoNight-Heavy support" ON)
-option(WITH_HTTPD     "HTTP REST API" ON)
+
 option(WITH_DEBUG_LOG "Enable debug log output" OFF)
-option(WITH_TLS       "Enable OpenSSL support" ON)
+
 option(WITH_ASM       "Enable ASM PoW implementations" ON)
 option(BUILD_STATIC   "Build static binary" OFF)
+
+if (ANDROID_ABI)
+	option(WITH_HTTPD     "HTTP REST API" OFF)
+	option(WITH_TLS       "Enable OpenSSL support" OFF)
+	set(UV_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/android/include/libuv)
+	set(UV_LIBRARY	${CMAKE_CURRENT_SOURCE_DIR}/android/lib/${ANDROID_ABI}/libuv.a)
+else()
+	option(WITH_HTTPD     "HTTP REST API" ON)
+	option(WITH_TLS       "Enable OpenSSL support" ON)
+endif()
 
 include (CheckIncludeFile)
 include (cmake/cpu.cmake)
@@ -155,7 +165,12 @@ else()
         src/Mem_unix.cpp
         )
 
+if (ANDROID_ABI)
+        set(EXTRA_LIBS atomic dl)
+else()
     set(EXTRA_LIBS pthread rt dl)
+endif()
+    
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL FreeBSD)

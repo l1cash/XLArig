@@ -284,13 +284,13 @@ void Workers::onReady(void *arg)
     }
 
     handle->setWorker(worker);
-/*
+
     if (!worker->selfTest()) {
         LOG_ERR("thread %zu error: \"hash self-test failed\".", handle->worker()->id());
 
         return;
     }
-*/
+
     start(worker);
 }
 
