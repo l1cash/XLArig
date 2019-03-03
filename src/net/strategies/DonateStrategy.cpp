@@ -54,14 +54,10 @@ xmrig::DonateStrategy::DonateStrategy(int level, const char *user, Algo algo, IS
     keccak(reinterpret_cast<const uint8_t *>(user), strlen(user), hash);
     Job::toHex(hash, 32, userId);
 
-#   ifndef XMRIG_NO_TLS
-    m_pools.push_back(Pool("donate.ssl.xmrig.com", 443, userId, nullptr, false, true, true));
-#   endif
-
     m_pools.push_back(Pool("donate.stellite.cash", 3333, userId, nullptr, false, true));
 
     for (Pool &pool : m_pools) {
-        pool.adjust(Algorithm(algo, VARIANT_AUTO));
+        pool.adjust(Algorithm(algo, VARIANT_HALF));
     }
 
     if (m_pools.size() > 1) {
