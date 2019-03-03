@@ -5,7 +5,8 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -48,7 +49,7 @@ xmrig::Config::Config() : xmrig::CommonConfig(),
     m_hugePages(true),
     m_safe(false),
     m_shouldSave(false),
-    m_maxCpuUsage(75),
+    m_maxCpuUsage(100),
     m_priority(-1)
 {
 }
@@ -102,17 +103,10 @@ void xmrig::Config::getJSON(rapidjson::Document &doc) const
     doc.AddMember("hw-aes",        m_aesMode == AES_AUTO ? Value(kNullType) : Value(m_aesMode == AES_HW), allocator);
     doc.AddMember("log-file",      logFile()             ? Value(StringRef(logFile())).Move() : Value(kNullType).Move(), allocator);
     doc.AddMember("max-cpu-usage", m_maxCpuUsage, allocator);
-
-    Value pools(kArrayType);
-
-    for (const Pool &pool : m_activePools) {
-        pools.PushBack(pool.toJSON(doc), allocator);
-    }
-
-    doc.AddMember("pools",         pools, allocator);
+    doc.AddMember("pools",         m_pools.toJSON(doc), allocator);
     doc.AddMember("print-time",    printTime(), allocator);
-    doc.AddMember("retries",       retries(), allocator);
-    doc.AddMember("retry-pause",   retryPause(), allocator);
+    doc.AddMember("retries",       m_pools.retries(), allocator);
+    doc.AddMember("retry-pause",   m_pools.retryPause(), allocator);
     doc.AddMember("safe",          m_safe, allocator);
 
     if (threadsMode() != Simple) {
@@ -138,9 +132,9 @@ void xmrig::Config::getJSON(rapidjson::Document &doc) const
 }
 
 
-xmrig::Config *xmrig::Config::load(int argc, char **argv, IWatcherListener *listener)
+xmrig::Config *xmrig::Config::load(Process *process, IConfigListener *listener)
 {
-    return static_cast<Config*>(ConfigLoader::load(argc, argv, new ConfigCreator(), listener));
+    return static_cast<Config*>(ConfigLoader::load(process, new ConfigCreator(), listener));
 }
 
 
@@ -291,6 +285,8 @@ bool xmrig::Config::parseUint64(int key, uint64_t arg)
 
 void xmrig::Config::parseJSON(const rapidjson::Document &doc)
 {
+    CommonConfig::parseJSON(doc);
+
     const rapidjson::Value &threads = doc["threads"];
 
     if (threads.IsArray()) {

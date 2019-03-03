@@ -4,11 +4,14 @@ project(xtlrig)
 option(WITH_LIBCPUID  "Use Libcpuid" ON)
 option(WITH_AEON      "CryptoNight-Lite support" ON)
 option(WITH_SUMO      "CryptoNight-Heavy support" ON)
-
+option(WITH_CN_PICO   "CryptoNight-Pico support" ON)
+option(WITH_CN_GPU    "CryptoNight-GPU support" ON)
+option(WITH_HTTPD     "HTTP REST API" ON)
 option(WITH_DEBUG_LOG "Enable debug log output" OFF)
 
 option(WITH_ASM       "Enable ASM PoW implementations" ON)
 option(BUILD_STATIC   "Build static binary" OFF)
+option(ARM_TARGET     "Force use specific ARM target 8 or 7" 0)
 
 if (ANDROID_ABI)
 	option(WITH_HTTPD     "HTTP REST API" OFF)
@@ -27,6 +30,19 @@ include (cmake/cpu.cmake)
 set(HEADERS
     src/api/NetworkState.h
     src/App.h
+    src/base/io/Json.h
+    src/base/io/Watcher.h
+    src/base/kernel/interfaces/IConfigListener.h
+    src/base/kernel/interfaces/ISignalListener.h
+    src/base/kernel/interfaces/IWatcherListener.h
+    src/base/kernel/Entry.h
+    src/base/kernel/Process.h
+    src/base/kernel/Signals.h
+    src/base/net/Pool.h
+    src/base/net/Pools.h
+    src/base/tools/Arguments.h
+    src/base/tools/Handle.h
+    src/base/tools/String.h
     src/common/config/CommonConfig.h
     src/common/config/ConfigLoader.h
     src/common/config/ConfigWatcher.h
@@ -43,7 +59,6 @@ set(HEADERS
     src/common/interfaces/ILogBackend.h
     src/common/interfaces/IStrategy.h
     src/common/interfaces/IStrategyListener.h
-    src/common/interfaces/IWatcherListener.h
     src/common/log/BasicLog.h
     src/common/log/ConsoleLog.h
     src/common/log/FileLog.h
@@ -51,7 +66,6 @@ set(HEADERS
     src/common/net/Client.h
     src/common/net/Id.h
     src/common/net/Job.h
-    src/common/net/Pool.h
     src/common/net/Storage.h
     src/common/net/strategies/FailoverStrategy.h
     src/common/net/strategies/SinglePoolStrategy.h
@@ -92,6 +106,7 @@ set(HEADERS_CRYPTO
     src/crypto/hash.h
     src/crypto/skein_port.h
     src/crypto/soft_aes.h
+    src/crypto/asm/CryptonightR_template.h
    )
 
 if (XMRIG_ARM)
@@ -103,6 +118,16 @@ endif()
 set(SOURCES
     src/api/NetworkState.cpp
     src/App.cpp
+    src/base/io/Json.cpp
+    src/base/io/Watcher.cpp
+    src/base/kernel/Entry.cpp
+    src/base/kernel/Process.cpp
+    src/base/kernel/Signals.cpp
+    src/base/net/Pool.cpp
+    src/base/net/Pools.cpp
+    src/base/tools/Arguments.cpp
+    src/base/tools/Handle.cpp
+    src/base/tools/String.cpp
     src/common/config/CommonConfig.cpp
     src/common/config/ConfigLoader.cpp
     src/common/config/ConfigWatcher.cpp
@@ -115,7 +140,6 @@ set(SOURCES
     src/common/log/Log.cpp
     src/common/net/Client.cpp
     src/common/net/Job.cpp
-    src/common/net/Pool.cpp
     src/common/net/strategies/FailoverStrategy.cpp
     src/common/net/strategies/SinglePoolStrategy.cpp
     src/common/net/SubmitResult.cpp
@@ -140,12 +164,14 @@ set(SOURCES_CRYPTO
     src/crypto/c_blake256.c
     src/crypto/c_jh.c
     src/crypto/c_skein.c
+    src/crypto/CryptonightR_gen.cpp
    )
 
 if (WIN32)
     set(SOURCES_OS
         res/app.rc
         src/App_win.cpp
+        src/base/io/Json_win.cpp
         src/common/Platform_win.cpp
         src/Mem_win.cpp
         )
@@ -155,26 +181,25 @@ if (WIN32)
 elseif (APPLE)
     set(SOURCES_OS
         src/App_unix.cpp
+        src/base/io/Json_unix.cpp
         src/common/Platform_mac.cpp
         src/Mem_unix.cpp
         )
 else()
     set(SOURCES_OS
         src/App_unix.cpp
+        src/base/io/Json_unix.cpp
         src/common/Platform_unix.cpp
         src/Mem_unix.cpp
         )
 
-if (ANDROID_ABI)
-        set(EXTRA_LIBS atomic dl)
-else()
-    set(EXTRA_LIBS pthread rt dl)
+    if (CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
+        set(EXTRA_LIBS kvm pthread)
+    else()
+        set(EXTRA_LIBS pthread rt dl)
+    endif()
 endif()
     
-endif()
-
-if (CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
-    set(EXTRA_LIBS ${EXTRA_LIBS} kvm)
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -212,6 +237,7 @@ endif()
 
 include(cmake/OpenSSL.cmake)
 include(cmake/asm.cmake)
+include(cmake/cn-gpu.cmake)
 
 CHECK_INCLUDE_FILE (syslog.h HAVE_SYSLOG_H)
 if (HAVE_SYSLOG_H)
@@ -229,6 +255,10 @@ endif()
 
 if (NOT WITH_IPBC)
     add_definitions(/DXMRIG_NO_IPBC)
+endif()
+
+if (NOT WITH_CN_PICO)
+    add_definitions(/DXMRIG_NO_CN_PICO)
 endif()
 
 if (WITH_HTTPD)
@@ -270,5 +300,5 @@ if (WITH_DEBUG_LOG)
     add_definitions(/DAPP_DEBUG)
 endif()
 
-add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${SOURCES_CPUID} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${HTTPD_SOURCES} ${TLS_SOURCES} ${XMRIG_ASM_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${MHD_LIBRARY} ${EXTRA_LIBS} ${CPUID_LIB})
+add_executable(${CMAKE_PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${SOURCES_CPUID} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${HTTPD_SOURCES} ${TLS_SOURCES} ${XMRIG_ASM_SOURCES} ${CN_GPU_SOURCES})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${MHD_LIBRARY} ${EXTRA_LIBS} ${CPUID_LIB})

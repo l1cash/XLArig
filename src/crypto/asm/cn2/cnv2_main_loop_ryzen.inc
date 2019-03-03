@@ -21,35 +21,35 @@
 	mov	r11, QWORD PTR [rcx+40]
 	mov	r10, r8
 	mov	rdx, QWORD PTR [rcx+56]
-	movd	xmm3, rax
+	movq	xmm3, rax
 	xor	rdx, QWORD PTR [rcx+24]
 	xor	r11, QWORD PTR [rcx+8]
 	mov	rbx, QWORD PTR [rcx+224]
 	mov	rax, QWORD PTR [r9+80]
 	xor	rax, QWORD PTR [r9+64]
-	movd	xmm0, rdx
+	movq	xmm0, rdx
 	mov	rcx, QWORD PTR [rcx+88]
 	xor	rcx, QWORD PTR [r9+72]
 	mov	rdi, QWORD PTR [r9+104]
 	and	r10d, 2097136
 	movaps	XMMWORD PTR [rsp+48], xmm6
-	movd	xmm4, rax
+	movq	xmm4, rax
 	movaps	XMMWORD PTR [rsp+32], xmm7
 	movaps	XMMWORD PTR [rsp+16], xmm8
 	xorps	xmm8, xmm8
 	mov ax, 1023
 	shl rax, 52
-	movd xmm7, rax
+	movq xmm7, rax
 	mov	r15, QWORD PTR [r9+96]
 	punpcklqdq xmm3, xmm0
-	movd	xmm0, rcx
+	movq	xmm0, rcx
 	punpcklqdq xmm4, xmm0
 
-	ALIGN 16
+	ALIGN(64)
 main_loop_ryzen:
 	movdqa	xmm5, XMMWORD PTR [r10+rbx]
-	movd	xmm0, r11
-	movd	xmm6, r8
+	movq	xmm0, r11
+	movq	xmm6, r8
 	punpcklqdq xmm6, xmm0
 	lea	rdx, QWORD PTR [r10+rbx]
 	lea	r9, QWORD PTR [rdi+rdi]
@@ -74,7 +74,7 @@ main_loop_ryzen:
 	movaps	xmm1, xmm8
 	mov	rsi, r15
 	xor	rsi, rdi
-	movd	r14, xmm5
+	movq	r14, xmm5
 	movdqa	xmm0, xmm5
 	pxor	xmm0, xmm3
 	mov	r10, r14
@@ -89,19 +89,19 @@ main_loop_ryzen:
 	xor	edx, edx
 	movdqa	xmm0, xmm5
 	psrldq	xmm0, 8
-	movd	rax, xmm0
+	movq	rax, xmm0
 
 	div	r9
-	movd xmm0, rax
-	movd xmm1, rdx
+	movq xmm0, rax
+	movq xmm1, rdx
 	punpckldq xmm0, xmm1
-	movd r15, xmm0
+	movq r15, xmm0
 	paddq xmm0, xmm5
 	movdqa xmm2, xmm0
 	psrlq xmm0, 12
 	paddq	xmm0, xmm7
 	sqrtsd	xmm1, xmm0
-	movd	rdi, xmm1
+	movq	rdi, xmm1
 	test	rdi, 524287
 	je	sqrt_fixup_ryzen
 	shr	rdi, 19
@@ -109,8 +109,8 @@ main_loop_ryzen:
 sqrt_fixup_ryzen_ret:
 	mov	rax, rsi
 	mul	r14
-	movd xmm1, rax
-	movd xmm0, rdx
+	movq xmm1, rax
+	movq xmm0, rdx
 	punpcklqdq xmm0, xmm1
 
 	mov	r9d, r10d
@@ -160,7 +160,7 @@ sqrt_fixup_ryzen_ret:
 	jmp cnv2_main_loop_ryzen_endp
 
 sqrt_fixup_ryzen:
-	movd r9, xmm2
+	movq r9, xmm2
 	dec	rdi
 	mov edx, -1022
 	shl rdx, 32

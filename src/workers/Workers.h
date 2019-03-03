@@ -5,7 +5,8 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,8 +22,8 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WORKERS_H__
-#define __WORKERS_H__
+#ifndef XMRIG_WORKERS_H
+#define XMRIG_WORKERS_H
 
 
 #include <atomic>
@@ -37,35 +38,35 @@
 
 class Handle;
 class Hashrate;
-class IJobResultListener;
 class IWorker;
 
 
 namespace xmrig {
     class Controller;
+    class IJobResultListener;
 }
 
 
 class Workers
 {
 public:
-    static Job job();
+    static xmrig::Job job();
     static size_t hugePages();
     static size_t threads();
     static void printHashrate(bool detail);
     static void setEnabled(bool enabled);
-    static void setJob(const Job &job, bool donate);
+    static void setJob(const xmrig::Job &job, bool donate);
     static void start(xmrig::Controller *controller);
     static void stop();
-    static void submit(const JobResult &result);
+    static void submit(const xmrig::JobResult &result);
 
-    static inline bool isEnabled()                               { return m_enabled; }
-    static inline bool isOutdated(uint64_t sequence)             { return m_sequence.load(std::memory_order_relaxed) != sequence; }
-    static inline bool isPaused()                                { return m_paused.load(std::memory_order_relaxed) == 1; }
-    static inline Hashrate *hashrate()                           { return m_hashrate; }
-    static inline uint64_t sequence()                            { return m_sequence.load(std::memory_order_relaxed); }
-    static inline void pause()                                   { m_active = false; m_paused = 1; m_sequence++; }
-    static inline void setListener(IJobResultListener *listener) { m_listener = listener; }
+    static inline bool isEnabled()                                      { return m_enabled; }
+    static inline bool isOutdated(uint64_t sequence)                    { return m_sequence.load(std::memory_order_relaxed) != sequence; }
+    static inline bool isPaused()                                       { return m_paused.load(std::memory_order_relaxed) == 1; }
+    static inline Hashrate *hashrate()                                  { return m_hashrate; }
+    static inline uint64_t sequence()                                   { return m_sequence.load(std::memory_order_relaxed); }
+    static inline void pause()                                          { m_active = false; m_paused = 1; m_sequence++; }
+    static inline void setListener(xmrig::IJobResultListener *listener) { m_listener = listener; }
 
 #   ifndef XMRIG_NO_API
     static void threadsSummary(rapidjson::Document &doc);
@@ -102,12 +103,12 @@ private:
     static bool m_active;
     static bool m_enabled;
     static Hashrate *m_hashrate;
-    static IJobResultListener *m_listener;
-    static Job m_job;
+    static xmrig::IJobResultListener *m_listener;
+    static xmrig::Job m_job;
     static LaunchStatus m_status;
     static std::atomic<int> m_paused;
     static std::atomic<uint64_t> m_sequence;
-    static std::list<JobResult> m_queue;
+    static std::list<xmrig::JobResult> m_queue;
     static std::vector<Handle*> m_workers;
     static uint64_t m_ticks;
     static uv_async_t m_async;
@@ -118,4 +119,4 @@ private:
 };
 
 
-#endif /* __WORKERS_H__ */
+#endif /* XMRIG_WORKERS_H */

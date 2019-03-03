@@ -1,3 +1,43 @@
+# v2.13.1
+[#946](https://github.com/xmrig/xmrig/pull/946) Optimized software AES implementations for CPUs without hardware AES support. `cn/r`, `cn/wow` up to 2.6 times faster, 4-9% improvements for other algorithms.
+
+# v2.13.0
+- **[#938](https://github.com/xmrig/xmrig/issues/938) Added support for new algorithm `cryptonight/r`, short alias `cn/r` (also known as CryptoNightR or CryptoNight variant 4), for upcoming [Monero](https://www.getmonero.org/) fork on March 9, thanks [@SChernykh](https://github.com/SChernykh).**
+- [#939](https://github.com/xmrig/xmrig/issues/939) Added support for dynamic (runtime) pools reload.
+- [#932](https://github.com/xmrig/xmrig/issues/932) Fixed `cn-pico` hashrate drop, regression since v2.11.0.
+
+# v2.12.0
+- [#929](https://github.com/xmrig/xmrig/pull/929) Added support for new algorithm `cryptonight/wow`, short alias `cn/wow` (also known as CryptonightR), for upcoming [Wownero](http://wownero.org) fork on February 14.
+
+# v2.11.0
+- [#928](https://github.com/xmrig/xmrig/issues/928) Added support for new algorithm `cryptonight/gpu`, short alias `cn/gpu` (original name `cryptonight-gpu`), for upcoming [Ryo currency](https://ryo-currency.com) fork on February 14.
+- [#749](https://github.com/xmrig/xmrig/issues/749) Added support for detect hardware AES in runtime on ARMv8 platforms.
+- [#292](https://github.com/xmrig/xmrig/issues/292) Fixed build on ARMv8 platforms if compiler not support hardware AES.
+
+# v2.10.0
+- [#904](https://github.com/xmrig/xmrig/issues/904) Added new algorithm `cn-pico/trtl` (aliases `cryptonight-turtle`, `cn-trtl`) for upcoming TurtleCoin (TRTL) fork.
+- Default value for option `max-cpu-usage` changed to `100` also this option now deprecated.
+
+# v2.9.4
+- [#913](https://github.com/xmrig/xmrig/issues/913) Fixed Masari (MSR) support (this update required for upcoming fork).
+- [#915](https://github.com/xmrig/xmrig/pull/915) Improved security, JIT memory now read-only after patching.
+
+# v2.9.3
+- [#909](https://github.com/xmrig/xmrig/issues/909) Fixed compile errors on FreeBSD.
+- [#912](https://github.com/xmrig/xmrig/pull/912) Fixed, C++ implementation of `cn/half` was produce up to 13% of invalid hashes.
+
+# v2.9.2
+- [#907](https://github.com/xmrig/xmrig/pull/907) Fixed crash on Linux.
+
+# v2.9.1
+- Restored compatibility with https://stellite.hashvault.pro.
+
+# v2.9.0
+- [#899](https://github.com/xmrig/xmrig/issues/899) Added support for new algorithm `cn/half` for Masari and Stellite forks.
+- [#834](https://github.com/xmrig/xmrig/pull/834) Added ASM optimized code for AMD Bulldozer.
+- [#839](https://github.com/xmrig/xmrig/issues/839) Fixed FreeBSD compile.
+- [#857](https://github.com/xmrig/xmrig/pull/857) Fixed impossible to build for macOS without clang.
+
 # v2.8.3
 - [#813](https://github.com/xmrig/xmrig/issues/813) Fixed critical bug with Minergate pool and variant 2.
 
