@@ -994,18 +994,18 @@ void xmrig::Client::onResolved(uv_getaddrinfo_t *req, int status, struct addrinf
         return;
     }
 
-    assert(client->m_listener != nullptr);
-    if (!client->m_listener) {
-        return client->reconnect();
-    }
+    // assert(client->m_listener != nullptr);
+    // if (!client->m_listener) {
+    //     return client->reconnect();
+    // }
 
-    if (status < 0) {
-        if (!client->isQuiet()) {
-            LOG_ERR("[%s] DNS error: \"%s\"", client->m_pool.url(), uv_strerror(status));
-        }
+    // if (status < 0) {
+    //     if (!client->isQuiet()) {
+    //         LOG_ERR("[%s] DNS error: \"%s\"", client->m_pool.url(), uv_strerror(status));
+    //     }
 
-        return client->reconnect();
-    }
+    //     return client->reconnect();
+    // }
 
     addrinfo *ptr = res;
     std::vector<addrinfo*> ipv4;

@@ -173,79 +173,24 @@ const char *xmrig::Algorithm::variantName() const
 
 void xmrig::Algorithm::parseAlgorithm(const char *algo)
 {
-    m_algo    = INVALID_ALGO;
-    m_variant = VARIANT_AUTO;
 
-    assert(algo != nullptr);
-    if (algo == nullptr || strlen(algo) < 1) {
-        return;
-    }
+    m_algo    = CRYPTONIGHT;
+    m_variant = xmrig::VARIANT_HALF;
 
-    if (*algo == '!') {
-        m_flags |= Forced;
-
-        return parseAlgorithm(algo + 1);
-    }
-
-    for (size_t i = 0; i < ARRAY_SIZE(algorithms); i++) {
-        if ((strcasecmp(algo, algorithms[i].name) == 0) || (strcasecmp(algo, algorithms[i].shortName) == 0)) {
-            m_algo    = algorithms[i].algo;
-            m_variant = algorithms[i].variant;
-            break;
-        }
-    }
-
-    if (m_algo == INVALID_ALGO) {
-        assert(false);
-    }
 }
 
 
 void xmrig::Algorithm::parseVariant(const char *variant)
 {
-    m_variant = VARIANT_AUTO;
-
-    if (variant == nullptr || strlen(variant) < 1) {
-        return;
-    }
-
-    if (*variant == '!') {
-        m_flags |= Forced;
-
-        return parseVariant(variant + 1);
-    }
-
-    for (size_t i = 0; i < ARRAY_SIZE(variants); i++) {
-        if (strcasecmp(variant, variants[i]) == 0) {
-            m_variant = static_cast<Variant>(i);
-            return;
-        }
-    }
-
-    if (strcasecmp(variant, "xtlv9") == 0) {
-        m_variant = VARIANT_HALF;
-    }
+   m_algo    = CRYPTONIGHT;
+    m_variant = xmrig::VARIANT_HALF;
 }
 
 
 void xmrig::Algorithm::parseVariant(int variant)
 {
-    assert(variant >= -1 && variant <= 2);
-
-    switch (variant) {
-    case -1:
-    case 0:
-    case 1:
-        m_variant = static_cast<Variant>(variant);
-        break;
-
-    case 2:
-        m_variant = VARIANT_2;
-        break;
-
-    default:
-        break;
-    }
+   m_algo    = CRYPTONIGHT;
+    m_variant = xmrig::VARIANT_HALF;
 }
 
 
@@ -262,25 +207,8 @@ void xmrig::Algorithm::setAlgo(Algo algo)
 #ifdef XMRIG_PROXY_PROJECT
 void xmrig::Algorithm::parseXmrStakAlgorithm(const char *algo)
 {
-    m_algo    = INVALID_ALGO;
-    m_variant = VARIANT_AUTO;
-
-    assert(algo != nullptr);
-    if (algo == nullptr) {
-        return;
-    }
-
-    for (size_t i = 0; i < ARRAY_SIZE(xmrStakAlgorithms); i++) {
-        if (strcasecmp(algo, xmrStakAlgorithms[i].name) == 0) {
-            m_algo    = xmrStakAlgorithms[i].algo;
-            m_variant = xmrStakAlgorithms[i].variant;
-            break;
-        }
-    }
-
-    if (m_algo == INVALID_ALGO) {
-        assert(false);
-    }
+      m_algo    = CRYPTONIGHT;
+    m_variant = xmrig::VARIANT_HALF;
 }
 #endif
 

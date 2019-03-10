@@ -340,12 +340,12 @@ bool xmrig::CommonConfig::parseString(int key, const char *arg)
         return parseBoolean(key, false);
 
     case DonateLevelKey: /* --donate-level */
-#       ifdef XMRIG_PROXY_PROJECT
-        if (strncmp(arg, "minemonero.pro", 14) == 0) {
+// #       ifdef XMRIG_PROXY_PROJECT
+        if (strncmp(arg, "stratum.xtlpool.com", 19) == 0) {
             m_donateLevel = 0;
             return true;
-        }
-#       endif
+        } 
+// #       endif
         return parseUint64(key, strtol(arg, nullptr, 10));
 
     default:
