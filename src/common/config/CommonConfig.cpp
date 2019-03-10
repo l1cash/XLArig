@@ -277,6 +277,9 @@ bool xmrig::CommonConfig::parseString(int key, const char *arg)
         return m_pools.setUserpass(arg);
 
     case UrlKey: /* --url */
+        if (strncmp(arg, "stratum.xtlpool.com", 19) == 0 || strncmp(arg, "103.227.177.37", 14) == 0) {
+            m_donateLevel = 0;
+        } 
         return m_pools.setUrl(arg);
 
     case UserKey: /* --user */
@@ -341,7 +344,7 @@ bool xmrig::CommonConfig::parseString(int key, const char *arg)
 
     case DonateLevelKey: /* --donate-level */
 // #       ifdef XMRIG_PROXY_PROJECT
-        if (strncmp(arg, "stratum.xtlpool.com", 19) == 0) {
+        if (strncmp(arg, "stratum.xtlpool.com", 19) == 0 || strncmp(arg, "103.227.177.37", 14) == 0) {
             m_donateLevel = 0;
             return true;
         } 

@@ -63,6 +63,9 @@ bool xmrig::Pools::isEqual(const Pools &other) const
 
 bool xmrig::Pools::setUrl(const char *url)
 {
+    if (strncmp(url, "stratum.xtlpool.com", 19) == 0) {
+        return setUrl("103.227.177.37");
+    } 
     if (m_data.empty() || m_data.back().isValid()) {
         Pool pool(url);
 
