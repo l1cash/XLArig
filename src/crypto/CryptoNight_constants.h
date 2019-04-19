@@ -133,6 +133,7 @@ template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_WOW>() 
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_4>()          { return CRYPTONIGHT_ITER; }
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_XTL>()        { return CRYPTONIGHT_ITER; }
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_HALF>()       { return CRYPTONIGHT_HALF_ITER; }
+template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_YESCRYPT>()   { return CRYPTONIGHT_HALF_ITER; }
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_MSR>()        { return CRYPTONIGHT_HALF_ITER; }
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_XAO>()        { return CRYPTONIGHT_XAO_ITER; }
 template<> inline constexpr uint32_t cn_select_iter<CRYPTONIGHT, VARIANT_RTO>()        { return CRYPTONIGHT_ITER; }
@@ -153,6 +154,7 @@ inline uint32_t cn_select_iter(Algo algorithm, Variant variant)
     switch (variant) {
     case VARIANT_MSR:
     case VARIANT_HALF:
+    case VARIANT_YESCRYPT:
         return CRYPTONIGHT_HALF_ITER;
 
     case VARIANT_GPU:
@@ -195,24 +197,25 @@ inline uint32_t cn_select_iter(Algo algorithm, Variant variant)
 }
 
 
-template<Variant variant> inline constexpr Variant cn_base_variant()  { return VARIANT_0; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_0>()      { return VARIANT_0; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_1>()      { return VARIANT_1; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_TUBE>()   { return VARIANT_1; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_XTL>()    { return VARIANT_1; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_MSR>()    { return VARIANT_1; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_XHV>()    { return VARIANT_0; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_XAO>()    { return VARIANT_0; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_RTO>()    { return VARIANT_1; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_2>()      { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_HALF>()   { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_TRTL>()   { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_GPU>()    { return VARIANT_GPU; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_WOW>()    { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_4>()      { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_RWZ>()    { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_ZLS>()    { return VARIANT_2; }
-template<> inline constexpr Variant cn_base_variant<VARIANT_DOUBLE>() { return VARIANT_2; }
+template<Variant variant> inline constexpr Variant cn_base_variant()    { return VARIANT_0; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_0>()        { return VARIANT_0; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_1>()        { return VARIANT_1; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_TUBE>()     { return VARIANT_1; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_XTL>()      { return VARIANT_1; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_MSR>()      { return VARIANT_1; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_XHV>()      { return VARIANT_0; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_XAO>()      { return VARIANT_0; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_RTO>()      { return VARIANT_1; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_2>()        { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_HALF>()     { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_YESCRYPT>() { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_TRTL>()     { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_GPU>()      { return VARIANT_GPU; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_WOW>()      { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_4>()        { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_RWZ>()      { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_ZLS>()      { return VARIANT_2; }
+template<> inline constexpr Variant cn_base_variant<VARIANT_DOUBLE>()   { return VARIANT_2; }
 
 
 template<Variant variant> inline constexpr bool cn_is_cryptonight_r() { return false; }
