@@ -28,14 +28,13 @@
 
 
 #include "crypto/CryptoNight_test.h"
-#include "common/log/Log.h"
 #include "workers/CpuThread.h"
 #include "workers/MultiWorker.h"
 #include "workers/Workers.h"
 
 
 template<size_t N>
-MultiWorker<N>::MultiWorker(Handle *handle)
+MultiWorker<N>::MultiWorker(ThreadHandle *handle)
     : Worker(handle)
 {
     m_memory = Mem::create(m_ctx, m_thread->algorithm(), N);

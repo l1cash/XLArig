@@ -42,13 +42,13 @@
 #include "crypto/CryptoNight_monero.h"
 #include "crypto/soft_aes.h"
 
-
 extern "C"
 {
 #include "crypto/c_groestl.h"
 #include "crypto/c_blake256.h"
 #include "crypto/c_jh.h"
 #include "crypto/c_skein.h"
+#include "crypto/yescrypt/yescrypt.h"
 }
 
 
@@ -72,10 +72,11 @@ static inline void do_skein_hash(const uint8_t *input, size_t len, uint8_t *outp
 }
 
 static inline void do_yescrypt_hash(const uint8_t *input, size_t len, uint8_t *output) {
-    yescrypt_cn_hash(input, len, output);
+    // hash_extra_yescrypt(input,len * 8,  output);
+    yescrypt_cn_hash(input, output);
 }
 
-void (* const extra_hashes[5])(const uint8_t *, size_t, uint8_t *) = {do_blake_hash, do_groestl_hash, do_jh_hash, do_skein_hash, do_yescrypt_hash};
+void (* const extra_hashes[4])(const uint8_t *, size_t, uint8_t *) = {do_blake_hash, do_groestl_hash, do_jh_hash, do_skein_hash};
 
 
 #if defined(__x86_64__) || defined(_M_AMD64)
@@ -593,7 +594,7 @@ inline void cryptonight_single_hash(const uint8_t *__restrict__ input, size_t si
         }
 
         ctx[0]->saes_table = (const uint32_t*)saes_table;
-        ctx[0]->generated_code(ctx[0]);
+        ctx[0]->generated_code(ctx);
     } else {
 #endif
 
@@ -707,13 +708,8 @@ inline void cryptonight_single_hash(const uint8_t *__restrict__ input, size_t si
     cn_implode_scratchpad<ALGO, MEM, SOFT_AES>((__m128i*) ctx[0]->memory, (__m128i*) ctx[0]->state);
 
     xmrig::keccakf(h0, 24);
-
-    uint8_t ehidx = 4;
-    if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-        ehidx = ctx[0]->state[0] & 3;
-    }
-
-    extra_hashes[ehidx](ctx[0]->state, 200, output);
+    do_yescrypt_hash(ctx[0]->state, 200, output);
+    //extra_hashes[ctx[0]->state[0] & 3](ctx[0]->state, 200, output);
 }
 
 
@@ -759,32 +755,32 @@ inline void cryptonight_single_hash_gpu(const uint8_t *__restrict__ input, size_
 
 
 #ifndef XMRIG_NO_ASM
-extern "C" void cnv2_mainloop_ivybridge_asm(cryptonight_ctx *ctx);
-extern "C" void cnv2_mainloop_ryzen_asm(cryptonight_ctx *ctx);
-extern "C" void cnv2_mainloop_bulldozer_asm(cryptonight_ctx *ctx);
-extern "C" void cnv2_double_mainloop_sandybridge_asm(cryptonight_ctx* ctx0, cryptonight_ctx* ctx1);
-extern "C" void cnv2_rwz_mainloop_asm(cryptonight_ctx *ctx);
-extern "C" void cnv2_rwz_double_mainloop_asm(cryptonight_ctx* ctx0, cryptonight_ctx* ctx1);
+extern "C" void cnv2_mainloop_ivybridge_asm(cryptonight_ctx **ctx);
+extern "C" void cnv2_mainloop_ryzen_asm(cryptonight_ctx **ctx);
+extern "C" void cnv2_mainloop_bulldozer_asm(cryptonight_ctx **ctx);
+extern "C" void cnv2_double_mainloop_sandybridge_asm(cryptonight_ctx **ctx);
+extern "C" void cnv2_rwz_mainloop_asm(cryptonight_ctx **ctx);
+extern "C" void cnv2_rwz_double_mainloop_asm(cryptonight_ctx **ctx);
 
 extern xmrig::CpuThread::cn_mainloop_fun        cn_half_mainloop_ivybridge_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_half_mainloop_ryzen_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_half_mainloop_bulldozer_asm;
-extern xmrig::CpuThread::cn_mainloop_double_fun cn_half_double_mainloop_sandybridge_asm;
+extern xmrig::CpuThread::cn_mainloop_fun        cn_half_double_mainloop_sandybridge_asm;
 
 extern xmrig::CpuThread::cn_mainloop_fun        cn_trtl_mainloop_ivybridge_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_trtl_mainloop_ryzen_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_trtl_mainloop_bulldozer_asm;
-extern xmrig::CpuThread::cn_mainloop_double_fun cn_trtl_double_mainloop_sandybridge_asm;
+extern xmrig::CpuThread::cn_mainloop_fun        cn_trtl_double_mainloop_sandybridge_asm;
 
 extern xmrig::CpuThread::cn_mainloop_fun        cn_zls_mainloop_ivybridge_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_zls_mainloop_ryzen_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_zls_mainloop_bulldozer_asm;
-extern xmrig::CpuThread::cn_mainloop_double_fun cn_zls_double_mainloop_sandybridge_asm;
+extern xmrig::CpuThread::cn_mainloop_fun        cn_zls_double_mainloop_sandybridge_asm;
 
 extern xmrig::CpuThread::cn_mainloop_fun        cn_double_mainloop_ivybridge_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_double_mainloop_ryzen_asm;
 extern xmrig::CpuThread::cn_mainloop_fun        cn_double_mainloop_bulldozer_asm;
-extern xmrig::CpuThread::cn_mainloop_double_fun cn_double_double_mainloop_sandybridge_asm;
+extern xmrig::CpuThread::cn_mainloop_fun        cn_double_double_mainloop_sandybridge_asm;
 
 void wow_compile_code(const V4_Instruction* code, int code_size, void* machine_code, xmrig::Assembly ASM);
 void v4_compile_code(const V4_Instruction* code, int code_size, void* machine_code, xmrig::Assembly ASM);
@@ -833,74 +829,70 @@ inline void cryptonight_single_hash_asm(const uint8_t *__restrict__ input, size_
 
     if (VARIANT == xmrig::VARIANT_2) {
         if (ASM == xmrig::ASM_INTEL) {
-            cnv2_mainloop_ivybridge_asm(ctx[0]);
+            cnv2_mainloop_ivybridge_asm(ctx);
         }
         else if (ASM == xmrig::ASM_RYZEN) {
-            cnv2_mainloop_ryzen_asm(ctx[0]);
+            cnv2_mainloop_ryzen_asm(ctx);
         }
         else {
-            cnv2_mainloop_bulldozer_asm(ctx[0]);
+            cnv2_mainloop_bulldozer_asm(ctx);
         }
     }
     else if (VARIANT == xmrig::VARIANT_HALF) {
         if (ASM == xmrig::ASM_INTEL) {
-            cn_half_mainloop_ivybridge_asm(ctx[0]);
+            cn_half_mainloop_ivybridge_asm(ctx);
         }
         else if (ASM == xmrig::ASM_RYZEN) {
-            cn_half_mainloop_ryzen_asm(ctx[0]);
+            cn_half_mainloop_ryzen_asm(ctx);
         }
         else {
-            cn_half_mainloop_bulldozer_asm(ctx[0]);
+            cn_half_mainloop_bulldozer_asm(ctx);
         }
     }
     else if (VARIANT == xmrig::VARIANT_TRTL) {
         if (ASM == xmrig::ASM_INTEL) {
-            cn_trtl_mainloop_ivybridge_asm(ctx[0]);
+            cn_trtl_mainloop_ivybridge_asm(ctx);
         }
         else if (ASM == xmrig::ASM_RYZEN) {
-            cn_trtl_mainloop_ryzen_asm(ctx[0]);
+            cn_trtl_mainloop_ryzen_asm(ctx);
         }
         else {
-            cn_trtl_mainloop_bulldozer_asm(ctx[0]);
+            cn_trtl_mainloop_bulldozer_asm(ctx);
         }
     }
     else if (VARIANT == xmrig::VARIANT_RWZ) {
-        cnv2_rwz_mainloop_asm(ctx[0]);
+        cnv2_rwz_mainloop_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_ZLS) {
         if (ASM == xmrig::ASM_INTEL) {
-            cn_zls_mainloop_ivybridge_asm(ctx[0]);
+            cn_zls_mainloop_ivybridge_asm(ctx);
         }
         else if (ASM == xmrig::ASM_RYZEN) {
-            cn_zls_mainloop_ryzen_asm(ctx[0]);
+            cn_zls_mainloop_ryzen_asm(ctx);
         }
         else {
-            cn_zls_mainloop_bulldozer_asm(ctx[0]);
+            cn_zls_mainloop_bulldozer_asm(ctx);
         }
     }
     else if (VARIANT == xmrig::VARIANT_DOUBLE) {
         if (ASM == xmrig::ASM_INTEL) {
-            cn_double_mainloop_ivybridge_asm(ctx[0]);
+            cn_double_mainloop_ivybridge_asm(ctx);
         }
         else if (ASM == xmrig::ASM_RYZEN) {
-            cn_double_mainloop_ryzen_asm(ctx[0]);
+            cn_double_mainloop_ryzen_asm(ctx);
         }
         else {
-            cn_double_mainloop_bulldozer_asm(ctx[0]);
+            cn_double_mainloop_bulldozer_asm(ctx);
         }
     }
     else if (xmrig::cn_is_cryptonight_r<VARIANT>()) {
-        ctx[0]->generated_code(ctx[0]);
+        ctx[0]->generated_code(ctx);
     }
 
     cn_implode_scratchpad<ALGO, MEM, false>(reinterpret_cast<__m128i*>(ctx[0]->memory), reinterpret_cast<__m128i*>(ctx[0]->state));
     xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[0]->state), 24);
-
-    uint8_t ehidx = 4;
-    if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-        ehidx = ctx[0]->state[0] & 3;
-    }
-    extra_hashes[ehidx](ctx[0]->state, 200, output);
+    do_yescrypt_hash(ctx[0]->state, 200, output);
+    //extra_hashes[ctx[0]->state[0] & 3](ctx[0]->state, 200, output);
 }
 
 
@@ -924,25 +916,25 @@ inline void cryptonight_double_hash_asm(const uint8_t *__restrict__ input, size_
     cn_explode_scratchpad<ALGO, MEM, false>(reinterpret_cast<__m128i*>(ctx[1]->state), reinterpret_cast<__m128i*>(ctx[1]->memory));
 
     if (VARIANT == xmrig::VARIANT_2) {
-        cnv2_double_mainloop_sandybridge_asm(ctx[0], ctx[1]);
+        cnv2_double_mainloop_sandybridge_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_HALF) {
-        cn_half_double_mainloop_sandybridge_asm(ctx[0], ctx[1]);
+        cn_half_double_mainloop_sandybridge_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_TRTL) {
-        cn_trtl_double_mainloop_sandybridge_asm(ctx[0], ctx[1]);
+        cn_trtl_double_mainloop_sandybridge_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_RWZ) {
-        cnv2_rwz_double_mainloop_asm(ctx[0], ctx[1]);
+        cnv2_rwz_double_mainloop_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_ZLS) {
-        cn_zls_double_mainloop_sandybridge_asm(ctx[0], ctx[1]);
+        cn_zls_double_mainloop_sandybridge_asm(ctx);
     }
     else if (VARIANT == xmrig::VARIANT_DOUBLE) {
-        cn_double_double_mainloop_sandybridge_asm(ctx[0], ctx[1]);
+        cn_double_double_mainloop_sandybridge_asm(ctx);
     }
     else if (xmrig::cn_is_cryptonight_r<VARIANT>()) {
-        ctx[0]->generated_code_double(ctx[0], ctx[1]);
+        ctx[0]->generated_code_double(ctx);
     }
 
     cn_implode_scratchpad<ALGO, MEM, false>(reinterpret_cast<__m128i*>(ctx[0]->memory), reinterpret_cast<__m128i*>(ctx[0]->state));
@@ -951,15 +943,10 @@ inline void cryptonight_double_hash_asm(const uint8_t *__restrict__ input, size_
     xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[0]->state), 24);
     xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[1]->state), 24);
 
-    uint8_t ehidx0 = 4;
-    uint8_t ehidx1 = 4;
-    if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-        ehidx0 = ctx[0]->state[0] & 3;
-        ehidx1 = ctx[1]->state[0] & 3;
-    }
-
-    extra_hashes[ehidx0](ctx[0]->state, 200, output);
-    extra_hashes[ehidx1](ctx[1]->state, 200, output + 32);
+    do_yescrypt_hash(ctx[0]->state, 200, output);
+    do_yescrypt_hash(ctx[1]->state, 200, output + 32);
+    //extra_hashes[ctx[0]->state[0] & 3](ctx[0]->state, 200, output);
+    // extra_hashes[ctx[1]->state[0] & 3](ctx[1]->state, 200, output + 32);
 }
 #endif
 
@@ -1170,16 +1157,10 @@ inline void cryptonight_double_hash(const uint8_t *__restrict__ input, size_t si
     xmrig::keccakf(h0, 24);
     xmrig::keccakf(h1, 24);
 
-    uint8_t ehidx0 = 4;
-    uint8_t ehidx1 = 4;
-    if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-        ehidx0 = ctx[0]->state[0] & 3;
-        ehidx1 = ctx[1]->state[0] & 3;
-    }
-
-    extra_hashes[ehidx0](ctx[0]->state, 200, output);
-    extra_hashes[ehidx1](ctx[1]->state, 200, output + 32);
-
+    do_yescrypt_hash(ctx[0]->state, 200, output);
+    do_yescrypt_hash(ctx[1]->state, 200, output + 32);
+    //extra_hashes[ctx[0]->state[0] & 3](ctx[0]->state, 200, output);
+    // extra_hashes[ctx[1]->state[0] & 3](ctx[1]->state, 200, output + 32);
 }
 
 
@@ -1349,13 +1330,9 @@ inline void cryptonight_triple_hash(const uint8_t *__restrict__ input, size_t si
     for (size_t i = 0; i < 3; i++) {
         cn_implode_scratchpad<ALGO, MEM, SOFT_AES>(reinterpret_cast<__m128i*>(ctx[i]->memory), reinterpret_cast<__m128i*>(ctx[i]->state));
         xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[i]->state), 24);
-
-        uint8_t ehidx = 4;
-        if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-            ehidx = ctx[i]->state[0] & 3;
-        }
-
-        extra_hashes[ehidx](ctx[i]->state, 200, output + 32 * i);
+        // extra_hashes[ctx[i]->state[0] & 3](ctx[i]->state, 200, output + 32 * i);
+        do_yescrypt_hash(ctx[i]->state, 200, output + 32 * i);
+        // extra_hashes[ctx[i]->state[0] & 3](ctx[i]->state, 200, output + 32 * i);
     }
 }
 
@@ -1428,12 +1405,9 @@ inline void cryptonight_quad_hash(const uint8_t *__restrict__ input, size_t size
     for (size_t i = 0; i < 4; i++) {
         cn_implode_scratchpad<ALGO, MEM, SOFT_AES>(reinterpret_cast<__m128i*>(ctx[i]->memory), reinterpret_cast<__m128i*>(ctx[i]->state));
         xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[i]->state), 24);
-        uint8_t ehidx = 4;
-        if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-            ehidx = ctx[i]->state[0] & 3;
-        }
+        // extra_hashes[ctx[i]->state[0] & 3](ctx[i]->state, 200, output + 32 * i);
+        do_yescrypt_hash(ctx[i]->state, 200, output + 32 * i);
 
-        extra_hashes[ehidx](ctx[i]->state, 200, output + 32 * i);
     }
 }
 
@@ -1514,11 +1488,8 @@ inline void cryptonight_penta_hash(const uint8_t *__restrict__ input, size_t siz
     for (size_t i = 0; i < 5; i++) {
         cn_implode_scratchpad<ALGO, MEM, SOFT_AES>(reinterpret_cast<__m128i*>(ctx[i]->memory), reinterpret_cast<__m128i*>(ctx[i]->state));
         xmrig::keccakf(reinterpret_cast<uint64_t*>(ctx[i]->state), 24);
-        uint8_t ehidx = 4;
-        if (VARIANT != xmrig::VARIANT_YESCRYPT) {
-            ehidx = ctx[i]->state[0] & 3;
-        }
-        extra_hashes[ehidx](ctx[i]->state, 200, output + 32 * i);
+        // extra_hashes[ctx[i]->state[0] & 3](ctx[i]->state, 200, output + 32 * i);
+        do_yescrypt_hash(ctx[i]->state, 200, output + 32 * i);
     }
 }
 

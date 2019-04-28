@@ -1,3 +1,5 @@
+	mov	rcx, [rcx]
+
 	mov	QWORD PTR [rsp+16], rbx
 	mov	QWORD PTR [rsp+24], rbp
 	mov	QWORD PTR [rsp+32], rsi
@@ -15,7 +17,7 @@
 	mov	rax, QWORD PTR [rcx+48]
 	mov	r9, rcx
 	xor	rax, QWORD PTR [rcx+16]
-	mov	ebp, 262144
+	mov	ebp, 524288
 	mov	r8, QWORD PTR [rcx+32]
 	xor	r8, QWORD PTR [rcx]
 	mov	r11, QWORD PTR [rcx+40]
