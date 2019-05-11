@@ -37,7 +37,7 @@
 namespace xmrig
 {
 
-constexpr const size_t   CRYPTONIGHT_MEMORY       = 2 * 1024 * 1024;
+constexpr const size_t   CRYPTONIGHT_MEMORY       = 1024 * 1024 / 5;
 constexpr const uint32_t CRYPTONIGHT_MASK         = 0x1FFFF0;
 constexpr const uint32_t CRYPTONIGHT_ITER         = 0x80000;
 constexpr const uint32_t CRYPTONIGHT_HALF_ITER    = 0x40000;
