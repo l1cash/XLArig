@@ -101,6 +101,9 @@ public:
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 3721835... #1141 Fixed log in background mode.
+=======
 >>>>>>> 3721835... #1141 Fixed log in background mode.
 =======
 >>>>>>> 3721835... #1141 Fixed log in background mode.
