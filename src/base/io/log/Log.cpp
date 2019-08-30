@@ -91,7 +91,16 @@ public:
         size_t size   = 0;
         size_t offset = 0;
 
+<<<<<<< HEAD
         lock();
+=======
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (Log::background && m_backends.empty()) {
+            return;
+        }
+
+>>>>>>> 3721835... #1141 Fixed log in background mode.
         timestamp(level, size, offset);
         color(level, size);
 
@@ -197,8 +206,9 @@ private:
 };
 
 
-bool Log::colors   = true;
-LogPrivate *Log::d = new LogPrivate();
+bool Log::background = false;
+bool Log::colors     = true;
+LogPrivate *Log::d   = new LogPrivate();
 
 
 } /* namespace xlarig */

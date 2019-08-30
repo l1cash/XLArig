@@ -175,7 +175,10 @@ int xlarig::Base::init()
     Platform::setProcessPriority(config()->priority());
 #   endif
 
-    if (!config()->isBackground()) {
+    if (config()->isBackground()) {
+        Log::background = true;
+    }
+    else {
         Log::add(new ConsoleLog());
     }
 

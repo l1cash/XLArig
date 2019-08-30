@@ -43,8 +43,8 @@
  * XLA: SEiStP7SMy1bvjkWc9dd1t2v1Et5q2DrmaqLqFTQQ9H7JKdZuATcPHUbUL3bRjxzxTDYitHsAPqF8EeCLw3bW8ARe8rYRQGsAd51BWGiR1UGo
  */
 
-constexpr const int kDefaultDonateLevel = 5;
-constexpr const int kMinimumDonateLevel = 5;
+constexpr const int kDefaultDonateLevel = 1;
+constexpr const int kMinimumDonateLevel = 0;
 
 
 #endif /* __DONATE_H__ */
