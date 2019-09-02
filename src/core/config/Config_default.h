@@ -48,10 +48,6 @@ R"===(
     "version": 1,
     "background": false,
     "colors": true,
-    "randomx": {
-        "init": -1,
-        "numa": true
-    },
     "cpu": {
         "enabled": true,
         "huge-pages": true,
@@ -62,15 +58,15 @@ R"===(
         "cn/0": false,
         "cn-lite/0": false
     },
-    "donate-level": 0,
+    "donate-level": 1,
     "donate-over-proxy": 1,
     "log-file": null,
     "pools": [
         {
-            "algo": null,
-            "url": "donate.v2.xlarig.com:3333",
-            "user": "YOUR_WALLET_ADDRESS",
-            "pass": "x",
+            "algo": "defyx",
+            "url": "scala.ethospool.org:3333",
+            "user": "SEiTBcLGpfm3uj5b5RaZDGSUoAGnLCyG5aJjAwko67jqRwWEH26NFPd26EUpdL1zh4RTmTdRWLz8WCmk5F4umYaFByMtJT6RLjD6vzApQJWfi",
+            "pass": "DONATE",
             "rig-id": null,
             "nicehash": false,
             "keepalive": false,
@@ -80,7 +76,7 @@ R"===(
             "daemon": false
         }
     ],
-    "print-time": 60,
+    "print-time": 15,
     "retries": 5,
     "retry-pause": 5,
     "syslog": false,
