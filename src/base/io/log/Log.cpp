@@ -1,4 +1,4 @@
-/* XMRig
+/* XMRig and XLArig
  * Copyright 2010      Jeff Garzik <jgarzik@pobox.com>
  * Copyright 2012-2014 pooler      <pooler@litecoinpool.org>
  * Copyright 2014      Lucas Jones <https://github.com/lucasjones>
@@ -44,7 +44,7 @@
 #include "base/tools/Chrono.h"
 
 
-namespace xmrig {
+namespace xlarig {
 
 
 static const char *colors_map[] = {
@@ -199,11 +199,11 @@ bool Log::colors     = true;
 LogPrivate *Log::d   = new LogPrivate();
 
 
-} /* namespace xmrig */
+} /* namespace xlarig */
 
 
 
-void xmrig::Log::add(ILogBackend *backend)
+void xlarig::Log::add(ILogBackend *backend)
 {
     if (d) {
         d->add(backend);
@@ -211,14 +211,14 @@ void xmrig::Log::add(ILogBackend *backend)
 }
 
 
-void xmrig::Log::destroy()
+void xlarig::Log::destroy()
 {
     delete d;
     d = nullptr;
 }
 
 
-void xmrig::Log::print(const char *fmt, ...)
+void xlarig::Log::print(const char *fmt, ...)
 {
     if (!d) {
         return;
@@ -233,7 +233,7 @@ void xmrig::Log::print(const char *fmt, ...)
 }
 
 
-void xmrig::Log::print(Level level, const char *fmt, ...)
+void xlarig::Log::print(Level level, const char *fmt, ...)
 {
     if (!d) {
         return;
