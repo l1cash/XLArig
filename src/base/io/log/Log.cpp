@@ -1,4 +1,4 @@
-/* XMRig and XLArig
+/* XMRig
  * Copyright 2010      Jeff Garzik <jgarzik@pobox.com>
  * Copyright 2012-2014 pooler      <pooler@litecoinpool.org>
  * Copyright 2014      Lucas Jones <https://github.com/lucasjones>
@@ -7,7 +7,7 @@
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
  * Copyright 2019      Spudz76     <https://github.com/Spudz76>
  * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
- * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2016-2019 XLARig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 
 
 #include <algorithm>
+#include <mutex>
 #include <string.h>
 #include <string>
 #include <time.h>
@@ -69,14 +70,11 @@ public:
     inline LogPrivate() :
         m_buf()
     {
-        uv_mutex_init(&m_mutex);
     }
 
 
     inline ~LogPrivate()
     {
-        uv_mutex_destroy(&m_mutex);
-
         for (ILogBackend *backend : m_backends) {
             delete backend;
         }
@@ -91,13 +89,18 @@ public:
         size_t size   = 0;
         size_t offset = 0;
 
-        lock();
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (Log::background && m_backends.empty()) {
+            return;
+        }
+
         timestamp(level, size, offset);
         color(level, size);
 
         const int rc = vsnprintf(m_buf + size, sizeof (m_buf) - offset - 32, fmt, args);
         if (rc < 0) {
-            return unlock();
+            return;
         }
 
         size += std::min(static_cast<size_t>(rc), sizeof (m_buf) - offset - 32);
@@ -112,23 +115,17 @@ public:
         if (!m_backends.empty()) {
             for (ILogBackend *backend : m_backends) {
                 backend->print(level, m_buf, offset, size, true);
-                backend->print(level, txt.c_str(), offset, txt.size(), false);
+                backend->print(level, txt.c_str(), offset ? (offset - 11) : 0, txt.size(), false);
             }
         }
         else {
             fputs(txt.c_str(), stdout);
             fflush(stdout);
         }
-
-        unlock();
     }
 
 
 private:
-    inline void lock()   { uv_mutex_lock(&m_mutex); }
-    inline void unlock() { uv_mutex_unlock(&m_mutex); }
-
-
     inline void timestamp(Log::Level level, size_t &size, size_t &offset)
     {
         if (level == Log::NONE) {
@@ -192,13 +189,14 @@ private:
 
 
     char m_buf[4096];
+    std::mutex m_mutex;
     std::vector<ILogBackend*> m_backends;
-    uv_mutex_t m_mutex;
 };
 
 
-bool Log::colors   = true;
-LogPrivate *Log::d = new LogPrivate();
+bool Log::background = false;
+bool Log::colors     = true;
+LogPrivate *Log::d   = new LogPrivate();
 
 
 } /* namespace xlarig */
