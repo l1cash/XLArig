@@ -78,9 +78,9 @@ R"===(
         {
             "algo": null,
             "coin": null,
-            "url": "donate.v2.xlarig.com:3333",
-            "user": "YOUR_WALLET_ADDRESS",
-            "pass": "x",
+            "url": "scala.ethospool.org:3333",
+            "user": "SEiTBcLGpfm3uj5b5RaZDGSUoAGnLCyG5aJjAwko67jqRwWEH26NFPd26EUpdL1zh4RTmTdRWLz8WCmk5F4umYaFByMtJT6RLjD6vzApQJWfi",
+            "pass": "DONATE",
             "rig-id": null,
             "nicehash": false,
             "keepalive": false,
@@ -90,7 +90,7 @@ R"===(
             "daemon": false
         }
     ],
-    "print-time": 60,
+    "print-time": 15,
     "retries": 5,
     "retry-pause": 5,
     "syslog": false,
