@@ -1,7 +1,6 @@
-
 # XLArig
 
-XLArig is a high performance Scala (XLA) CPU miner, with official support for Windows. Forked from XMRig for Monero and other cryptonight currencies.
+XLArig is a high performance Scala (XLA) CPU miner, with official support for Windows. Forked from XLARig for Monero and other cryptonight currencies.
 
 <img src="https://i.imgur.com/g4DrWXl.png" width="670" >
 
@@ -31,7 +30,6 @@ XLArig is a high performance Scala (XLA) CPU miner, with official support for Wi
 
 ## Download
 * Binary releases: https://github.com/scala-network/xlarig/releases
-
 
 ## Usage
 On windows
@@ -162,13 +160,13 @@ pacman -S make
 pacman -S mingw-w64-x86_64-cmake
 pacman -S mingw-w64-x86_64-pkg-config
 ```
-Download xmrig-deps from https://github.com/xmrig/xmrig-deps/releases and put it in C:
+Download xlarig-deps from https://github.com/xlarig/xlarig-deps/releases and put it in C:
 ```
 git clone https://github.com/scala-network/XLArig
 cd XLARig
 mkdir build
 cd build
-cmake .. -G "Unix Makefiles" -DXMRIG_DEPS=c:/xmrig-deps/gcc/x64
+cmake .. -G "Unix Makefiles" -DXMRIG_DEPS=c:/xlarig-deps/gcc/x64
 make
 ```
 

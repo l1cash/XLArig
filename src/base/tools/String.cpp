@@ -31,7 +31,6 @@
 
 
 xlarig::String::String(const char *str) :
-    m_data(nullptr),
     m_size(str == nullptr ? 0 : strlen(str))
 {
     if (m_size == 0) {
@@ -44,7 +43,6 @@ xlarig::String::String(const char *str) :
 
 
 xlarig::String::String(const char *str, size_t size) :
-    m_data(nullptr),
     m_size(size)
 {
     if (str == nullptr) {
@@ -60,7 +58,6 @@ xlarig::String::String(const char *str, size_t size) :
 
 
 xlarig::String::String(const String &other) :
-    m_data(nullptr),
     m_size(other.m_size)
 {
     if (other.m_data == nullptr) {
@@ -117,7 +114,7 @@ std::vector<xlarig::String> xlarig::String::split(char sep) const
     for (pos = 0; pos < m_size; ++pos) {
         if (m_data[pos] == sep) {
             if ((pos - start) > 0) {
-                out.push_back(String(m_data + start, pos - start));
+                out.emplace_back(m_data + start, pos - start);
             }
 
             start = pos + 1;
@@ -125,7 +122,7 @@ std::vector<xlarig::String> xlarig::String::split(char sep) const
     }
 
     if ((pos - start) > 0) {
-        out.push_back(String(m_data + start, pos - start));
+        out.emplace_back(m_data + start, pos - start);
     }
 
     return out;
@@ -140,6 +137,20 @@ xlarig::String &xlarig::String::toLower()
 
     for (size_t i = 0; i < size(); ++i) {
         m_data[i] = static_cast<char>(tolower(m_data[i]));
+    }
+
+    return *this;
+}
+
+
+xlarig::String &xlarig::String::toUpper()
+{
+    if (isNull() || isEmpty()) {
+        return *this;
+    }
+
+    for (size_t i = 0; i < size(); ++i) {
+        m_data[i] = static_cast<char>(toupper(m_data[i]));
     }
 
     return *this;

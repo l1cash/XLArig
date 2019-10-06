@@ -28,10 +28,10 @@
 #endif
 
 #include <algorithm>
-#include <inttypes.h>
+#include <cinttypes>
+#include <ctime>
 #include <iterator>
 #include <memory>
-#include <time.h>
 
 
 #include "base/io/log/Log.h"
@@ -60,7 +60,7 @@ xlarig::Network::Network(Controller *controller) :
     m_donate(nullptr),
     m_timer(nullptr)
 {
-    JobResults::setListener(this);
+    JobResults::setListener(this, controller->config()->cpu().isHwAES());
     controller->addListener(this);
 
 #   ifdef XMRIG_FEATURE_API
@@ -83,11 +83,7 @@ xlarig::Network::~Network()
     JobResults::stop();
 
     delete m_timer;
-
-    if (m_donate) {
-        delete m_donate;
-    }
-
+    delete m_donate;
     delete m_strategy;
 }
 
@@ -179,10 +175,11 @@ void xlarig::Network::onLogin(IStrategy *, IClient *client, rapidjson::Document 
 
     Value algo_perf(kObjectType);
 
+/*
     for (const auto &a : algorithms) {
         algo_perf.AddMember(StringRef(a.shortName()), m_controller->config()->benchmark().algo_perf[a.id()], allocator);
     }
-
+*/
     params.AddMember("algo-perf", algo_perf, allocator);
 }
 
@@ -312,8 +309,8 @@ void xlarig::Network::getResults(rapidjson::Value &reply, rapidjson::Document &d
     results.AddMember("hashes_total",  m_state.total, allocator);
 
     Value best(kArrayType);
-    for (size_t i = 0; i < m_state.topDiff.size(); ++i) {
-        best.PushBack(m_state.topDiff[i], allocator);
+    for (uint64_t i : m_state.topDiff) {
+        best.PushBack(i, allocator);
     }
 
     results.AddMember("best", best, allocator);

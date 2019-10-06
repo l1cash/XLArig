@@ -63,7 +63,7 @@ const char *xlarig::BasicCpuInfo::backend() const
 }
 
 
-xlarig::CpuThreads xlarig::BasicCpuInfo::threads(const Algorithm &) const
+xlarig::CpuThreads xlarig::BasicCpuInfo::threads(const Algorithm &, uint32_t) const
 {
     return CpuThreads(threads());
 }

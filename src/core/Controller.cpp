@@ -23,7 +23,7 @@
  */
 
 
-#include <assert.h>
+#include <cassert>
 
 
 #include "backend/cpu/Cpu.h"
@@ -44,20 +44,9 @@ xlarig::Controller::~Controller()
 }
 
 
-bool xlarig::Controller::isReady() const
-{
-    return Base::isReady() && m_network;
-}
-
-
 int xlarig::Controller::init()
 {
-    Cpu::init();
-
-    const int rc = Base::init();
-    if (rc != 0) {
-        return rc;
-    }
+    Base::init();
 
     m_network = new Network(this);
     return 0;

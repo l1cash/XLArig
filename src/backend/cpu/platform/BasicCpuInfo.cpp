@@ -179,7 +179,7 @@ const char *xlarig::BasicCpuInfo::backend() const
 }
 
 
-xlarig::CpuThreads xlarig::BasicCpuInfo::threads(const Algorithm &algorithm) const
+xlarig::CpuThreads xlarig::BasicCpuInfo::threads(const Algorithm &algorithm, uint32_t limit) const
 {
     const size_t count = std::thread::hardware_concurrency();
 

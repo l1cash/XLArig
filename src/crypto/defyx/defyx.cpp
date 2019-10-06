@@ -1,6 +1,5 @@
 /*
 Copyright (c) 2018-2019, tevador <tevador@gmail.com>
-Copyright (c) 2018-2019, Scala Project <hello@scalaproject.io>
 
 All rights reserved.
 
@@ -60,6 +59,9 @@ RandomX_ConfigurationScala::RandomX_ConfigurationScala()
 	ScratchpadL3_Size = 262144;
 	ScratchpadL2_Size = 131072;
 	ScratchpadL1_Size = 65536;
+
+	RANDOMX_FREQ_IADD_RS = 25;
+	RANDOMX_FREQ_CBRANCH = 16;
 }
 
 RandomX_ConfigurationScala RandomX_ScalaConfig;

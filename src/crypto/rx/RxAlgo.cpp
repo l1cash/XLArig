@@ -32,23 +32,53 @@
 
 xlarig::Algorithm::Id xlarig::RxAlgo::apply(Algorithm::Id algorithm)
 {
+    randomx_apply_config(*base(algorithm));
+
+    return algorithm;
+}
+
+
+const RandomX_ConfigurationBase *xlarig::RxAlgo::base(Algorithm::Id algorithm)
+{
     switch (algorithm) {
     case Algorithm::RX_WOW:
-        randomx_apply_config(RandomX_WowneroConfig);
-        break;
+        return &RandomX_WowneroConfig;
 
     case Algorithm::RX_LOKI:
-        randomx_apply_config(RandomX_LokiConfig);
+        return &RandomX_LokiConfig;
         break;
 
     case Algorithm::DEFYX:
-        randomx_apply_config(RandomX_ScalaConfig);
+        return &RandomX_ScalaConfig;
         break;
 
     default:
-        randomx_apply_config(RandomX_MoneroConfig);
         break;
     }
 
-    return algorithm;
+    return &RandomX_MoneroConfig;
+}
+
+
+uint32_t xlarig::RxAlgo::version(Algorithm::Id algorithm)
+{
+    return algorithm == Algorithm::RX_WOW ? 103 : 104;
+}
+
+
+uint32_t xlarig::RxAlgo::programCount(Algorithm::Id algorithm)
+{
+    return base(algorithm)->ProgramCount;
+}
+
+
+uint32_t xlarig::RxAlgo::programIterations(Algorithm::Id algorithm)
+{
+    return base(algorithm)->ProgramIterations;
+}
+
+
+uint32_t xlarig::RxAlgo::programSize(Algorithm::Id algorithm)
+{
+    return base(algorithm)->ProgramSize;
 }

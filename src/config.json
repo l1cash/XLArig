@@ -25,20 +25,30 @@
         "huge-pages": true,
         "hw-aes": null,
         "priority": null,
+        "max-threads-hint": 100,
         "asm": true,
         "argon2-impl": null,
         "cn/0": false,
         "cn-lite/0": false
     },
     "donate-level": 1,
+    "opencl": {
+        "enabled": false,
+        "cache": true,
+        "loader": null,
+        "platform": "AMD",
+        "cn/0": false,
+        "cn-lite/0": false
+    },
     "donate-over-proxy": 1,
     "log-file": null,
     "pools": [
         {
             "algo": "defyx",
-            "url": "scala.ethospool.org:3333",
-            "user": "SEiTBcLGpfm3uj5b5RaZDGSUoAGnLCyG5aJjAwko67jqRwWEH26NFPd26EUpdL1zh4RTmTdRWLz8WCmk5F4umYaFByMtJT6RLjD6vzApQJWfi",
-            "pass": "DONATE",
+            "coin": null,
+            "url": "mine.scalaproject.io:3333",
+            "user": "YOUR_WALLET_ADDRESS",
+            "pass": "x",
             "rig-id": null,
             "nicehash": false,
             "keepalive": false,
@@ -49,7 +59,7 @@
         }
     ],
     "print-time": 60,
-    "retries": 0,
+    "retries": 5,
     "retry-pause": 5,
     "syslog": false,
     "user-agent": null,

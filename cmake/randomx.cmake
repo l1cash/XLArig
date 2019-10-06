@@ -54,19 +54,8 @@ if (WITH_RANDOMX)
         src/crypto/defyx/sha256.h
         src/crypto/defyx/sysendian.h
         src/crypto/defyx/yescrypt.h
+        src/crypto/defyx/yescrypt-best.c
     )
-
-    if (WIN32)
-        set(SOURCES_CRYPTO 
-            "${SOURCES_CRYPTO}"
-             src/crypto/defyx/yescrypt-ref.c
-        )
-    else()
-        set(SOURCES_CRYPTO 
-            "${SOURCES_CRYPTO}"
-             src/crypto/defyx/yescrypt-best.c
-        )
-    endif()
 
     if (CMAKE_C_COMPILER_ID MATCHES MSVC)
         enable_language(ASM_MASM)
@@ -81,6 +70,17 @@ if (WITH_RANDOMX)
             )
         # cheat because cmake and ccache hate each other
         set_property(SOURCE src/crypto/randomx/jit_compiler_x86_static.S PROPERTY LANGUAGE C)
+    elseif (XMRIG_ARM AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+        list(APPEND SOURCES_CRYPTO
+             src/crypto/randomx/jit_compiler_a64_static.S
+             src/crypto/randomx/jit_compiler_a64.cpp
+            )
+        # cheat because cmake and ccache hate each other
+        set_property(SOURCE src/crypto/randomx/jit_compiler_a64_static.S PROPERTY LANGUAGE C)
+    endif()
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        set_source_files_properties(src/crypto/randomx/jit_compiler_x86.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-const-variable)
     endif()
 else()
     remove_definitions(/DXMRIG_ALGO_RANDOMX)

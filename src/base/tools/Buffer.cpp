@@ -53,14 +53,7 @@ static inline uint8_t hf_bin2hex(uint8_t c)
 }
 
 
-xlarig::Buffer::Buffer() :
-    m_data(nullptr),
-    m_size(0)
-{
-}
-
-
-xlarig::Buffer::Buffer(Buffer &&other) :
+xlarig::Buffer::Buffer(Buffer &&other) noexcept :
     m_data(other.m_data),
     m_size(other.m_size)
 {
@@ -138,11 +131,13 @@ bool xlarig::Buffer::fromHex(const uint8_t *in, size_t size, uint8_t *out)
 xlarig::Buffer xlarig::Buffer::fromHex(const char *data, size_t size)
 {
     if (data == nullptr || size % 2 != 0) {
-        return Buffer();
+        return {};
     }
 
     Buffer buf(size / 2);
-    fromHex(data, size, buf.data());
+    if (!fromHex(data, size, buf.data())) {
+        return {};
+    }
 
     return buf;
 }
@@ -154,12 +149,6 @@ void xlarig::Buffer::toHex(const uint8_t *in, size_t size, uint8_t *out)
         out[i * 2]     = hf_bin2hex((in[i] & 0xF0) >> 4);
         out[i * 2 + 1] = hf_bin2hex(in[i] & 0x0F);
     }
-}
-
-
-xlarig::String xlarig::Buffer::toHex(const uint8_t *in, size_t size)
-{
-    return Buffer(reinterpret_cast<const char *>(in), size).toHex();
 }
 
 

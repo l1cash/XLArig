@@ -27,16 +27,16 @@
 
 #define APP_ID        "xlarig"
 #define APP_NAME      "XLARig"
-#define APP_DESC      "XLARig CPU miner"
-#define APP_VERSION   "3.1.0-mo1"
+#define APP_DESC      "XLARig miner"
+#define APP_VERSION   "4.2.1"
 #define APP_DOMAIN    "xlarig.com"
 #define APP_SITE      "www.xlarig.com"
 #define APP_COPYRIGHT "Copyright (C) 2016-2019 xlarig.com"
-#define APP_KIND      "cpu"
+#define APP_KIND      "miner"
 
-#define APP_VER_MAJOR  3
-#define APP_VER_MINOR  1
-#define APP_VER_PATCH  0
+#define APP_VER_MAJOR  4
+#define APP_VER_MINOR  2
+#define APP_VER_PATCH  1
 
 #ifdef _MSC_VER
 #   if (_MSC_VER >= 1920)

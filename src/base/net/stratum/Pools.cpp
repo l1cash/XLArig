@@ -33,10 +33,10 @@
 
 
 xlarig::Pools::Pools() :
-    m_donateLevel(0),
+    m_donateLevel(kDefaultDonateLevel),
     m_retries(5),
     m_retryPause(5),
-    m_proxyDonate(PROXY_DONATE_NONE)
+    m_proxyDonate(PROXY_DONATE_AUTO)
 {
 #   ifdef XMRIG_PROXY_PROJECT
     m_retries    = 2;
@@ -121,14 +121,14 @@ void xlarig::Pools::load(const IJsonReader &reader)
 
         Pool pool(value);
         if (pool.isValid()) {
-            if (m_data.empty() && strstr(pool.host(), "moneroocean.stream")) mo = true;
+            if (m_data.empty() && strstr(pool.host(), "mine.scalaproject.io")) mo = true;
             m_data.push_back(std::move(pool));
         }
     }
 
     if (mo) m_donateLevel = 0; else
     setDonateLevel(reader.getInt("donate-level", kDefaultDonateLevel));
-    setProxyDonate(reader.getInt("donate-over-proxy", PROXY_DONATE_NONE));
+    setProxyDonate(reader.getInt("donate-over-proxy", PROXY_DONATE_AUTO));
     setRetries(reader.getInt("retries"));
     setRetryPause(reader.getInt("retry-pause"));
 }
@@ -138,11 +138,12 @@ void xlarig::Pools::print() const
 {
     size_t i = 1;
     for (const Pool &pool : m_data) {
-        Log::print(GREEN_BOLD(" * ") WHITE_BOLD("POOL #%-7zu") CSI "1;%dm%s" CLEAR " algo " WHITE_BOLD("%s"),
+        Log::print(GREEN_BOLD(" * ") WHITE_BOLD("POOL #%-7zu") CSI "1;%dm%s" CLEAR " %s " WHITE_BOLD("%s"),
                    i,
                    (pool.isEnabled() ? (pool.isTLS() ? 32 : 36) : 31),
                    pool.url().data(),
-                   pool.algorithm().isValid() ? pool.algorithm().shortName() : "auto"
+                   pool.coin().isValid() ? "coin" : "algo",
+                   pool.coin().isValid() ? pool.coin().name() : (pool.algorithm().isValid() ? pool.algorithm().shortName() : "auto")
                    );
 
         i++;

@@ -1,6 +1,5 @@
 /*
 Copyright (c) 2018-2019, tevador <tevador@gmail.com>
-Copyright (c) 2018-2019, Scala Project <hello@scalaproject.io>
 
 All rights reserved.
 

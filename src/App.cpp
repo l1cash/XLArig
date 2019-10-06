@@ -24,7 +24,7 @@
  */
 
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <uv.h>
 
 
@@ -42,18 +42,9 @@
 #include "version.h"
 
 
-xlarig::App::App(Process *process) :
-    m_console(nullptr),
-    m_signals(nullptr)
+xlarig::App::App(Process *process)
 {
     m_controller = new Controller(process);
-    if (m_controller->init() != 0) {
-        return;
-    }
-
-    if (!m_controller->config()->isBackground()) {
-        m_console = new Console(this);
-    }
 }
 
 
@@ -68,12 +59,26 @@ xlarig::App::~App()
 int xlarig::App::exec()
 {
     if (!m_controller->isReady()) {
+        LOG_EMERG("no valid configuration found.");
+
         return 2;
     }
 
     m_signals = new Signals(this);
 
-    background();
+    int rc = 0;
+    if (background(rc)) {
+        return rc;
+    }
+
+    rc = m_controller->init();
+    if (rc != 0) {
+        return rc;
+    }
+
+    if (!m_controller->isBackground()) {
+        m_console = new Console(this);
+    }
 
     VirtualMemory::init(m_controller->config()->cpu().isHugePages());
 
@@ -86,19 +91,11 @@ int xlarig::App::exec()
     }
 
     m_controller->pre_start();
-    m_controller->config()->benchmark().set_controller(m_controller);
-
-    if (m_controller->config()->benchmark().isNewBenchRun() || m_controller->config()->isRebenchAlgo()) {
-        //m_controller->config()->benchmark().start();
-        m_controller->start();
-    } else {
-        m_controller->start();
-    }
-
-    const int r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    m_controller->start();
+    rc = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
     uv_loop_close(uv_default_loop());
 
-    return r;
+    return rc;
 }
 
 
@@ -158,7 +155,11 @@ void xlarig::App::onSignal(int signum)
 void xlarig::App::close()
 {
     m_signals->stop();
-    m_console->stop();
+
+    if (m_console) {
+        m_console->stop();
+    }
+
     m_controller->stop();
 
     Log::destroy();

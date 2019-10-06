@@ -3,17 +3,20 @@ project(xlarig)
 
 option(WITH_LIBCPUID        "Enable libcpuid support" ON)
 option(WITH_HWLOC           "Enable hwloc support" ON)
-option(WITH_CN_LITE         "Enable CryptoNight-Lite algorithms family" ON)
-option(WITH_CN_HEAVY        "Enable CryptoNight-Heavy algorithms family" ON)
-option(WITH_CN_PICO         "Enable CryptoNight-Pico algorithm" ON)
-option(WITH_CN_GPU          "Enable CryptoNight-GPU algorithm" ON)
+option(WITH_CN_LITE         "Enable CryptoNight-Lite algorithms family" OFF)
+option(WITH_CN_HEAVY        "Enable CryptoNight-Heavy algorithms family" OFF)
+option(WITH_CN_PICO         "Enable CryptoNight-Pico algorithm" OFF)
+option(WITH_CN_GPU          "Enable CryptoNight-GPU algorithm" OFF)
 option(WITH_RANDOMX         "Enable RandomX algorithms family" ON)
-option(WITH_ARGON2          "Enable Argon2 algorithms family" ON)
+option(WITH_ARGON2          "Enable Argon2 algorithms family" OFF)
 option(WITH_HTTP            "Enable HTTP protocol support (client/server)" ON)
 option(WITH_DEBUG_LOG       "Enable debug log output" OFF)
 option(WITH_TLS             "Enable OpenSSL support" ON)
 option(WITH_ASM             "Enable ASM PoW implementations" ON)
 option(WITH_EMBEDDED_CONFIG "Enable internal embedded JSON config" OFF)
+option(WITH_OPENCL          "Enable OpenCL backend" ON)
+option(WITH_STRICT_CACHE    "Enable strict checks for OpenCL cache" ON)
+option(WITH_INTERLEAVE_DEBUG_LOG "Enable debug log for threads interleave" OFF)
 
 option(BUILD_STATIC         "Build static binary" OFF)
 option(ARM_TARGET           "Force use specific ARM target 8 or 7" 0)
@@ -68,6 +71,7 @@ set(HEADERS_CRYPTO
     src/crypto/cn/skein_port.h
     src/crypto/cn/soft_aes.h
     src/crypto/common/Algorithm.h
+    src/crypto/common/Coin.h
     src/crypto/common/keccak.h
     src/crypto/common/Nonce.h
     src/crypto/common/portable/mm_malloc.h
@@ -89,7 +93,7 @@ set(SOURCES
     src/core/config/ConfigTransform.cpp
     src/core/Controller.cpp
     src/core/Miner.cpp
-    src/core/Benchmark.cpp
+    #src/core/Benchmark.cpp
     src/net/JobResults.cpp
     src/net/Network.cpp
     src/net/NetworkState.cpp
@@ -106,6 +110,7 @@ set(SOURCES_CRYPTO
     src/crypto/cn/CnCtx.cpp
     src/crypto/cn/CnHash.cpp
     src/crypto/common/Algorithm.cpp
+    src/crypto/common/Coin.cpp
     src/crypto/common/keccak.cpp
     src/crypto/common/Nonce.cpp
     src/crypto/common/VirtualMemory.cpp
@@ -141,7 +146,7 @@ else()
     endif()
 endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "Android")
     EXECUTE_PROCESS(COMMAND uname -o COMMAND tr -d '\n' OUTPUT_VARIABLE OPERATING_SYSTEM)
     if (OPERATING_SYSTEM MATCHES "Android")
         set(EXTRA_LIBS ${EXTRA_LIBS} log)
